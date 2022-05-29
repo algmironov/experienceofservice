@@ -17,7 +17,9 @@ public class DateServiceImpl implements DateService {
     DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
     @Override
-    public RegularExperience getRegularExperience(FirstContractDate firstContractDate) {
+    public RegularExperience getRegularExperience(int armyYears, int armyMonths,
+                                                  int academyYears, int academyMonths,
+                                                  FirstContractDate firstContractDate) {
 
         String tmpDate = formatter.format(LocalDate.of(firstContractDate.getFirstContractYear(),
                                                         firstContractDate.getFirstContractMonth(),
@@ -26,7 +28,11 @@ public class DateServiceImpl implements DateService {
             LocalDate endDate = LocalDate.now();
             Period experience = Period.between(startDate, endDate);
 
-            return  new RegularExperience(experience.getYears(), experience.getMonths(), experience.getDays());
+            int regularYears = experience.getYears() + armyYears + academyYears;
+            int regularMonths = experience.getMonths() + armyMonths + academyMonths;
+            int regularDays = experience.getDays();
+
+            return  new RegularExperience(regularYears, regularMonths, regularDays);
     }
 
 
@@ -53,8 +59,10 @@ public class DateServiceImpl implements DateService {
     }
 
     @Override
-    public OverallExperience getOverallExperience(ArmyExperience armyExperience, AcademyExperience academyExperience,
-                                                  RegularExperience regularExperience, PreferentialExperience preferentialExperience) {
+    public OverallExperience getOverallExperience(ArmyExperience armyExperience,
+                                                  AcademyExperience academyExperience,
+                                                  RegularExperience regularExperience,
+                                                  PreferentialExperience preferentialExperience) {
 
         int overallDays, overallMonths, overallYears;
         int overallMonthsAddition = 0;
@@ -66,16 +74,14 @@ public class DateServiceImpl implements DateService {
             overallMonthsAddition += 1;
         }
 
-        overallMonths = armyExperience.getArmyMonths() + academyExperience.getAcademyMonths()
-                + regularExperience.getRegularMonths() + preferentialExperience.getPreferentialMonths() + overallMonthsAddition;
+        overallMonths = regularExperience.getRegularMonths() + preferentialExperience.getPreferentialMonths() + overallMonthsAddition;
 
         if (overallMonths > 12) {
             overallMonths = overallMonths - 12;
             overallYearsAddition += 1;
         }
 
-        overallYears = armyExperience.getArmyYears() + academyExperience.getAcademyYears()
-                + regularExperience.getRegularYears()
+        overallYears = regularExperience.getRegularYears()
                 + preferentialExperience.getPreferentialYears() + overallYearsAddition;
 
 
@@ -83,18 +89,26 @@ public class DateServiceImpl implements DateService {
     }
 
     @Override
-    public String getExperienceInfo(ArmyExperience armyExperience, AcademyExperience academyExperience,
+    public String getExperienceInfo(int armyYears, int armyMonths,
+                                    int academyYears, int academyMonths,
                                     FirstContractDate firstContractDate) {
-        RegularExperience regularExperience = getRegularExperience(firstContractDate);
-        PreferentialExperience preferentialExperience = calculatePreferentialExperience(firstContractDate);
-        OverallExperience overallExperience = getOverallExperience(armyExperience, academyExperience,
-                regularExperience, preferentialExperience);
 
-        String result = "Общая выслуга: " + regularExperience.getRegularYears() + " лет " + regularExperience.getRegularMonths() + " месяцев "
+        AcademyExperience academyExperience = new AcademyExperience(academyYears, academyMonths);
+
+        ArmyExperience armyExperience = new ArmyExperience(armyYears, armyMonths);
+
+        RegularExperience regularExperience = getRegularExperience(armyYears, armyMonths,
+                                                                    academyYears, academyMonths,
+                                                                    firstContractDate);
+        PreferentialExperience preferentialExperience = calculatePreferentialExperience(firstContractDate);
+
+        OverallExperience overallExperience = getOverallExperience(armyExperience, academyExperience,
+                                                                    regularExperience, preferentialExperience);
+
+        return "Календарная выслуга: " + regularExperience.getRegularYears() + " лет " + regularExperience.getRegularMonths() + " месяцев "
                 + regularExperience.getRegularDays() + " дней | льготная: " + preferentialExperience.getPreferentialYears() + " лет " +
                 preferentialExperience.getPreferentialMonths() + " месяцев " + preferentialExperience.getPreferentialDays() + " дней | общая: " +
                 overallExperience.getOverallYears() + " лет " + overallExperience.getOverallMonths() + " месяцев " + overallExperience.getOverallDays() + " дней";
-        return result;
     }
 
 

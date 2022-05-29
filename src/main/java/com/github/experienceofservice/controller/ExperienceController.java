@@ -4,6 +4,7 @@ import com.github.experienceofservice.model.*;
 import com.github.experienceofservice.service.DateService;
 import com.github.experienceofservice.service.impl.DateServiceImpl;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,8 +18,11 @@ public class ExperienceController {
     }
 
     @PostMapping()
-    public ResponseEntity<RegularExperience> getRegularExperience(@RequestBody FirstContractDate firstContractDate) {
-        RegularExperience regularExperience = dateServiceImpl.getRegularExperience(firstContractDate);
+    public ResponseEntity<RegularExperience> getRegularExperience(@RequestParam int armyYears, @RequestParam int armyMonths,
+                                                                  @RequestParam int academyYears, @RequestParam int academyMonths,
+                                                                  @RequestBody FirstContractDate firstContractDate) {
+        RegularExperience regularExperience = dateServiceImpl.getRegularExperience(armyYears, armyMonths, academyYears,
+                                                                                    academyMonths, firstContractDate);
         return ResponseEntity.ok(regularExperience);
     }
 
@@ -29,9 +33,11 @@ public class ExperienceController {
     }
 
     @PostMapping("/getInfo")
-    public ResponseEntity<String> getExperienceInfo(@RequestBody ArmyExperience armyExperience, @RequestBody AcademyExperience academyExperience,
+    public ResponseEntity<String> getExperienceInfo(@RequestParam int armyYears, @RequestParam int armyMonths,
+                                                    @RequestParam int academyYears, @RequestParam int academyMonths,
                                                     @RequestBody FirstContractDate firstContractDate) {
 
-        return ResponseEntity.ok(dateServiceImpl.getExperienceInfo(armyExperience, academyExperience, firstContractDate));
+        return ResponseEntity.ok(dateServiceImpl.getExperienceInfo(armyYears, armyMonths, academyYears, academyMonths,
+                firstContractDate));
     }
 }

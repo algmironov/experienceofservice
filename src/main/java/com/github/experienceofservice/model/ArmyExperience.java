@@ -1,5 +1,6 @@
 package com.github.experienceofservice.model;
 
+
 public class ArmyExperience {
     private int armyYears;
     private int armyMonths;
